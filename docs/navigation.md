@@ -1,6 +1,6 @@
 # Internal navigation policy v1 (extension 1.1.0)
 
-This initial implementation adds opt-in internal navigation to PWA Scope Fixer in the PWA Scoper fork. Manifest injection, saved site appearance, reset, installation prompts and upstream names remain. Existing `siteSettings` and `autoScopeFix` values are untouched. Navigation is disabled until an app policy is enabled and its site access is granted.
+This initial implementation adds opt-in internal navigation to PWA Scope(Fixe)r, a fork of the upstream extension. Manifest injection, saved site appearance, reset, installation prompts and upstream credits remain. Existing `siteSettings` and `autoScopeFix` values are untouched. Navigation is disabled until an app policy is enabled and its site access is granted.
 
 ## Configure an app
 
@@ -44,7 +44,7 @@ There is **no universal popup interception**. Native out-of-scope UI and the bro
 
 `chrome.storage.local.navigationPolicies` is `{ version: 1, apps: [...] }`. Each app has `id`, `name`, `enabled`, `scope`, `approvedDomains`, `authenticationDomains`, and `interceptWindowOpen`. Missing data means an empty list. Unknown versions and invalid entries fail closed, with a generic warning. No settings migration or reset is required for upstream users. Scope and exact-host validation runs before saving and again when the worker reads settings.
 
-Warnings use `[PWA Scope Fixer]` in the page console and extension service-worker console. Navigation logs do not include full URLs, query strings, authentication codes or browsing history. There is no telemetry. Revoke host access or disable the policy and reload the app to recover native behavior. If an injected page runtime cannot be reached after access is revoked, reloading is required to remove it. Optional host access is broader than directory scopes because Chromium match patterns grant access by origin; the runtime enforces the directory policy.
+Warnings use `[PWA Scope(Fixe)r]` in the page console and extension service-worker console. Navigation logs do not include full URLs, query strings, authentication codes or browsing history. There is no telemetry. Revoke host access or disable the policy and reload the app to recover native behavior. If an injected page runtime cannot be reached after access is revoked, reloading is required to remove it. Optional host access is broader than directory scopes because Chromium match patterns grant access by origin; the runtime enforces the directory policy.
 
 ## Validation
 

@@ -73,6 +73,24 @@ This project uses [Bun](https://bun.sh/) and [React](https://react.dev/).
 - **Build for production**: `bun run build`
 - **Package (.zip)**: `bun run pack` (Create a zip file for distribution)
 
+### Makefile shortcuts
+
+With Make and Bun installed, run `make` for the command list:
+
+```sh
+make install    # Install locked dependencies
+make build      # Production build in dist/
+make check      # Tests, type checking, and build
+make debug      # Watch mode with source maps and unminified scripts
+make pack       # Build dist/extension.zip (requires zip)
+make usage      # Loading and debugging instructions
+make clean      # Remove generated dist/ files
+```
+
+`make dev`, `make test`, and `make typecheck` are also available. Override the Bun executable with `make BUN=/path/to/bun build`. Run `make install` once before building. Watch mode rebuilds files; reload the extension in `chrome://extensions/` and reload the app page to use the new code. Inspect the extension service worker there, or inspect the popup and page consoles, to debug issues.
+
+On Windows, use Make and a POSIX shell (for example through MSYS2), or run the corresponding Bun commands directly. Packaging requires the `zip` command. Do not run watch mode and production build/package/cleanup targets concurrently because they share `dist/`.
+
 ## Credits
 
 - Developed by **[kittizz](https://github.com/kittizz)**.

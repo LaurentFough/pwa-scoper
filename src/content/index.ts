@@ -1,4 +1,4 @@
-console.log("[PWA Scope Fixer] Content script loaded.");
+console.log("[PWA Scope(Fixe)r] Content script loaded.");
 
 let deferredPrompt: any = null;
 
@@ -6,7 +6,7 @@ window.addEventListener("beforeinstallprompt", (e: any) => {
   // Prevent the mini-infobar from appearing on mobile
   e.preventDefault();
   deferredPrompt = e;
-  console.log("[PWA Scope Fixer] Captured beforeinstallprompt");
+  console.log("[PWA Scope(Fixe)r] Captured beforeinstallprompt");
 });
 
 function getPwaDefaults() {
@@ -35,7 +35,7 @@ function injectManifest(settings: {
   backgroundColor?: string;
   themeColor?: string;
 }) {
-  console.log("[PWA Scope Fixer] Injecting manifest");
+  console.log("[PWA Scope(Fixe)r] Injecting manifest");
 
   // 1. Create Policy for TrustedTypes (if required by the site)
   let policy: any = { createHTML: (s: string) => s };
@@ -45,7 +45,7 @@ function injectManifest(settings: {
         createHTML: (html: string) => html,
       });
     } catch (e) {
-      console.warn("[PWA Scope Fixer] Policy creation failed (likely exists):", e);
+      console.warn("[PWA Scope(Fixe)r] Policy creation failed (likely exists):", e);
     }
   }
 
@@ -74,7 +74,7 @@ function injectManifest(settings: {
 
   // Fallback to generated icon if no icons found
   if (manifestIcons.length === 0) {
-    console.log("[PWA Scope Fixer] No icons found, using fallback icon");
+    console.log("[PWA Scope(Fixe)r] No icons found, using fallback icon");
     const fallbackIconUrl = (() => {
       const canvas = document.createElement("canvas");
       canvas.width = 192;
@@ -135,9 +135,9 @@ function injectManifest(settings: {
     const head = document.head || document.documentElement;
     // Insert as first child to prioritize
     head.insertAdjacentHTML("afterbegin", policy.createHTML(linkString));
-    console.log("[PWA Scope Fixer] Injection Complete");
+    console.log("[PWA Scope(Fixe)r] Injection Complete");
   } catch (e) {
-    console.error("[PWA Scope Fixer] Injection Failed:", e);
+    console.error("[PWA Scope(Fixe)r] Injection Failed:", e);
   }
 }
 
@@ -205,14 +205,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     injectManifest(request.settings);
     sendResponse({ success: true });
   } else if (request.action === "trigger_install") {
-    console.log("[PWA Scope Fixer] Received trigger_install message");
+    console.log("[PWA Scope(Fixe)r] Received trigger_install message");
     if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choiceResult: any) => {
         if (choiceResult.outcome === "accepted") {
-          console.log("[PWA Scope Fixer] User accepted the A2HS prompt");
+          console.log("[PWA Scope(Fixe)r] User accepted the A2HS prompt");
         } else {
-          console.log("[PWA Scope Fixer] User dismissed the A2HS prompt");
+          console.log("[PWA Scope(Fixe)r] User dismissed the A2HS prompt");
         }
         deferredPrompt = null;
       });

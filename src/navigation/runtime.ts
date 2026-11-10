@@ -31,7 +31,7 @@ export function installNavigation(policy: AppPolicy | null) {
     try {
       location.assign(anchor.href);
       event.preventDefault();
-    } catch { console.warn('[PWA Scope Fixer] Navigation failed; native link behavior retained.'); }
+    } catch { console.warn('[PWA Scope(Fixe)r] Navigation failed; native link behavior retained.'); }
   };
   const wrappedOpen: typeof window.open = function(url, target, features) {
     if (internal(location.href) && typeof url === 'string' && url && (!target || target.toLowerCase() === '_blank') &&
@@ -39,7 +39,7 @@ export function installNavigation(policy: AppPolicy | null) {
       try {
         location.assign(new URL(url, document.baseURI).href);
         return null; // Explicit opt-in: never fabricate a popup WindowProxy.
-      } catch { console.warn('[PWA Scope Fixer] Navigation failed; using native window.open.'); }
+      } catch { console.warn('[PWA Scope(Fixe)r] Navigation failed; using native window.open.'); }
     }
     return originalOpen.call(window, url, target, features);
   };

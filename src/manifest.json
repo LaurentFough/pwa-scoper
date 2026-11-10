@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "PWA Scope Fixer",
+  "name": "PWA Scope(Fixe)r",
   "version": "1.1.0",
   "description": "> Fix PWA address bar issues by injecting a custom manifest. Customize app name, scope, colors, and force standalone mode easily.",
   "permissions": [
@@ -10,7 +10,7 @@
   ],
   "action": {
     "default_popup": "popup/index.html",
-    "default_title": "PWA Scope Fixer"
+    "default_title": "PWA Scope(Fixe)r"
   },
   "icons": {
     "16": "icons/icon16.png",

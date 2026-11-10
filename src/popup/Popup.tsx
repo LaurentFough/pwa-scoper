@@ -211,7 +211,7 @@ export const Popup = () => {
   return (
     <div className="p-4 flex flex-col gap-4 w-[450px]">
       <div className="flex items-center gap-2 border-b pb-2 mb-1">
-        <h1 className="text-lg font-bold text-slate-800 flex-1">PWA Scope Fixer</h1>
+        <h1 className="text-lg font-bold text-slate-800 flex-1">PWA Scope(Fixe)r</h1>
         <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">v{chrome.runtime.getManifest().version}</span>
         <button
           onClick={() => chrome.runtime.openOptionsPage()}

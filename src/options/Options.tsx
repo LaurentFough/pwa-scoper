@@ -30,12 +30,12 @@ export function Options() {
       <div className="flex justify-center items-center gap-8 mb-8">
         <img
           src={logo}
-          alt="Bun Logo"
+          alt="PWA Scope(Fixe)r icon"
           className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#646cffaa]"
         />
       </div>
 
-      <h1 className="text-4xl font-bold my-4">Extension Options</h1>
+      <h1 className="text-4xl font-bold my-4">PWA Scope(Fixe)r Options</h1>
       <div className="text-left max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
         <h2 className="text-xl font-bold mb-4">Settings</h2>
         <div className="mb-4">

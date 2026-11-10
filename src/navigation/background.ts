@@ -54,12 +54,12 @@ export async function navigationMessage(message: any, sender: chrome.runtime.Mes
 }
 export function startNavigation() {
   let pending = Promise.resolve();
-  const sync = () => { pending = pending.then(syncNavigationScripts).catch(() => console.warn('[PWA Scope Fixer] Navigation registration failed; check policy and host access.')); };
+  const sync = () => { pending = pending.then(syncNavigationScripts).catch(() => console.warn('[PWA Scope(Fixe)r] Navigation registration failed; check policy and host access.')); };
   const disposeLive = () => {
     void chrome.tabs.query({}).then(tabs => Promise.allSettled(tabs.filter(t => t.id !== undefined).map(t =>
       chrome.scripting.executeScript({ target: { tabId: t.id! }, world: 'MAIN', func: installNavigation, args: [null] })))).then(results => {
-      if (results.some(result => result.status === 'rejected')) console.warn('[PWA Scope Fixer] Reload app windows to clear navigation handlers after site-access changes.');
-    }).catch(() => console.warn('[PWA Scope Fixer] Reload app windows to clear navigation handlers.'));
+      if (results.some(result => result.status === 'rejected')) console.warn('[PWA Scope(Fixe)r] Reload app windows to clear navigation handlers after site-access changes.');
+    }).catch(() => console.warn('[PWA Scope(Fixe)r] Reload app windows to clear navigation handlers.'));
   };
   chrome.runtime.onInstalled.addListener(sync);
   chrome.runtime.onStartup.addListener(sync);
@@ -73,12 +73,12 @@ export function startNavigation() {
     }
   });
   chrome.tabs.onRemoved.addListener(id => {
-    void chrome.storage.session.remove(`navigation-tab-${id}`).catch(() => console.warn('[PWA Scope Fixer] Session cleanup failed.'));
+    void chrome.storage.session.remove(`navigation-tab-${id}`).catch(() => console.warn('[PWA Scope(Fixe)r] Session cleanup failed.'));
   });
   chrome.runtime.onMessage.addListener((message, sender, respond) => {
     if (!['navigation_ready', 'navigation_bind', 'navigation_unbind'].includes(message?.action)) return;
     navigationMessage(message, sender).then(respond).catch(() => {
-      console.warn('[PWA Scope Fixer] Navigation request failed; native navigation retained.');
+      console.warn('[PWA Scope(Fixe)r] Navigation request failed; native navigation retained.');
       respond({ success: false, error: 'Navigation unavailable. Check scope and site access, then reload.' });
     });
     return true;
