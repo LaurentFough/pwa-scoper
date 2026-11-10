@@ -1,5 +1,6 @@
 export interface SiteSetting {
   startUrl: string;
+  origin?: string;
   name?: string;
   shortName?: string;
   backgroundColor?: string;

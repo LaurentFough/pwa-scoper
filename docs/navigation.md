@@ -1,4 +1,4 @@
-# Internal navigation policy v1 (extension 1.1.0)
+# Internal navigation policy v1 (extension 1.1.1)
 
 This initial implementation adds opt-in internal navigation to PWA Scope(Fixe)r, a fork of the upstream extension. Manifest injection, saved site appearance, reset, installation prompts and upstream credits remain. Existing `siteSettings` and `autoScopeFix` values are untouched. Navigation is disabled until an app policy is enabled and its site access is granted.
 
@@ -61,3 +61,13 @@ Before release, repeat these checks in a disposable profile on each target brows
 7. Suspend/restart the extension worker, reload, disable the tab, reload again, edit/disable a policy, revoke site access, close/reopen the app and restart the browser. Verify session activation and cleanup match the description above.
 
 Native browser/PWA/Omarchy acceptance is pending; passing unit tests and builds alone does not establish those results.
+
+## Installation troubleshooting
+
+Version 1.1.1 fixes the extension showing an install action merely because a manifest was saved. It also preserves captured prompts when the popup is reopened, registers an early listener for saved/granted sites, and reapplies saved manifests after the initial DOM loads when **Auto Scope Fix** is enabled. Registration is independent of navigation policies. **Apply & Save** now requests site access and waits for listener registration before recommending a reload. Unknown-size favicons are no longer labeled as 192px icons, and missing 192px/512px images receive correctly sized generated fallbacks.
+
+Update/reload the extension, open the website in a normal browser tab, click **Apply & Save**, grant access, and reload that page once. Reopen the extension. If Chromium emits an installation offer, **Continue installation on page** exposes an on-page **Install app** button. Its real click invokes the single-use prompt with page user activation. A popup message never directly calls `prompt()`. Dismissed or failed prompts are consumed; the extension waits for a new browser offer. The popup updates readiness while open. It does not claim the app is installed from the user's acceptance alone; the `appinstalled` event confirms that state.
+
+When no offer exists, the popup explains that native installation is unavailable and suggests Chromium's **Install page as app** menu, where offered. The extension cannot manufacture an installation event or guarantee installation by changing a manifest. Chromium's [install criteria](https://web.dev/articles/install-criteria) include a secure page, manifest fields and icon sizes, engagement checks and the app not already being installed. Its [custom installation guidance](https://web.dev/articles/customize-install) describes saving the offered event, calling it from a user gesture and using it once. Page CSP can also block a data-URL manifest or icons; inspect the page's Application/Manifest and console panels if the native menu is unavailable. No uninstall is required merely to configure internal navigation in an existing PWA or an Omarchy `--app` window.
+
+Regression checks include repeated production-script injection without losing a captured offer, fresh-document listener registration, automatic reapplication with the setting on/off, same-origin validation, correct fallback dimensions, prompt single-use/double-click behavior, cancellation, failure and browser-menu fallback. These are simulated browser events; real Chromium installation and policy-specific eligibility still require native testing.

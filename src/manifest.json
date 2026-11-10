@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PWA Scope(Fixe)r",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "> Fix PWA address bar issues by injecting a custom manifest. Customize app name, scope, colors, and force standalone mode easily.",
   "permissions": [
     "activeTab",

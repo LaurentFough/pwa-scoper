@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { NavigationSettings } from "./NavigationSettings";
 
+import { httpUrl } from "../navigation/policy";
 import { StorageManager } from "../utils/storage";
 
 export const Popup = () => {
@@ -14,6 +15,8 @@ export const Popup = () => {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [statusMsg, setStatusMsg] = useState("");
   const [isInstallReady, setIsInstallReady] = useState(false);
+  const [installReason, setInstallReason] = useState('Checking installation availability…');
+  const [activeTab, setActiveTab] = useState<{ id: number; url: string } | null>(null);
   const [pageDefaults, setPageDefaults] = useState<any>({});
 
   const getCurrentTabUrl = (useFullUrl = false) => {
@@ -33,16 +36,16 @@ export const Popup = () => {
   useEffect(() => {
     // Initialize popup: Inject script -> Get Defaults -> Load Settings
     const init = async () => {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (!tab?.id || !tab?.url) return;
-
       try {
-        // 1. Inject content script (idempotent-ish, or handle error if already there?)
-        // Since we removed content_scripts from manifest, we MUST inject it here.
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (tab?.id === undefined || !tab.url) throw new Error('No web page selected.');
+        // Safe to inject repeatedly; saved sites also register this at document_start.
         await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           files: ["content.js"],
         });
+
+        setActiveTab({ id: tab.id, url: tab.url });
 
         // 2. Get Page Defaults from content script
         const defaults: any = await new Promise((resolve) => {
@@ -87,12 +90,6 @@ export const Popup = () => {
           }
         }
 
-        // 5. Check install status
-        chrome.tabs.sendMessage(tab.id, { action: "check_install_status" }, (response) => {
-          if (!chrome.runtime.lastError && response?.ready) {
-            setIsInstallReady(true);
-          }
-        });
       } catch (err) {
         console.error("Initialization failed:", err);
         setStatus("error");
@@ -103,58 +100,46 @@ export const Popup = () => {
     init();
   }, []);
 
-  const handleApply = async () => {
-    setStatus("idle");
-    setStatusMsg("");
-
-    if (!startUrl) {
-      setStatus("error");
-      setStatusMsg("Please specify URL");
-      return;
-    }
-
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-    if (!tab?.id) {
-      setStatus("error");
-      setStatusMsg("No active tab found");
-      return;
-    }
-
-    const settings = {
-      startUrl,
-      name,
-      shortName,
-      backgroundColor: bgColor,
-      themeColor,
-    };
-
-    // Save to storage
-    if (tab.url) {
+  // Read actual readiness, including events delivered after the popup opens.
+  useEffect(() => {
+    if (!activeTab) return;
+    let cancelled = false;
+    const update = async () => {
       try {
-        const hostname = new URL(tab.url).hostname;
-        const { siteSettings } = await StorageManager.get("siteSettings");
-
-        siteSettings[hostname] = settings;
-        await StorageManager.set({ siteSettings });
-        console.log("Saved settings for", hostname);
-      } catch (e) {
-        console.error("Failed to save settings", e);
+        const result = await chrome.tabs.sendMessage(activeTab.id, { action: 'check_install_status' });
+        if (!cancelled) { setIsInstallReady(result?.ready === true); setInstallReason(result?.reason ?? 'Installation unavailable.'); }
+      } catch {
+        if (!cancelled) { setIsInstallReady(false); setInstallReason('Reload this page, then reopen the extension.'); }
       }
-    }
+    };
+    void update();
+    const timer = setInterval(update, 1000);
+    return () => { cancelled = true; clearInterval(timer); };
+  }, [activeTab]);
 
+  const handleApply = async () => {
+    setStatus('idle');
+    setStatusMsg('');
     try {
-      await chrome.tabs.sendMessage(tab.id, {
-        action: "fix_scope",
-        settings,
-      });
-
-      setStatus("success");
-      setStatusMsg("Manifest Injected!");
-    } catch (err: any) {
-      console.error(err);
-      setStatus("error");
-      setStatusMsg("Error: " + err.message + ". Try refreshing the page.");
+      if (!activeTab) throw new Error('No web page selected.');
+      const current = httpUrl(activeTab.url);
+      const start = httpUrl(startUrl);
+      if (start.origin !== current.origin) throw new Error('Start URL must belong to the current origin.');
+      // Request from this direct user gesture, before any asynchronous work.
+      const granted = await chrome.permissions.request({ origins: [`${current.protocol}//${current.hostname}/*`] });
+      if (!granted) throw new Error('Site access is needed to reapply the manifest after reload. Nothing was saved.');
+      const settings = { startUrl: start.href, origin: current.origin, name, shortName, backgroundColor: bgColor, themeColor };
+      const { siteSettings, autoScopeFix } = await StorageManager.get(['siteSettings', 'autoScopeFix']);
+      await StorageManager.set({ siteSettings: { ...siteSettings, [current.hostname]: settings } });
+      const registration = await chrome.runtime.sendMessage({ action: 'manifest_sync' });
+      if (!registration?.success) throw new Error('Settings saved, but automatic reapplication is unavailable. Reload the extension and try again.');
+      const response = await chrome.tabs.sendMessage(activeTab.id, { action: 'fix_scope', settings });
+      if (!response?.success) throw new Error(response?.error ?? 'Could not apply the manifest.');
+      setStatus('success');
+      setStatusMsg(autoScopeFix ? 'Manifest saved and applied. Reload this page once, then reopen the extension to check installation.' : 'Manifest applied. Enable Auto Scope Fix in Options to reapply it after reload.');
+    } catch (error) {
+      setStatus('error');
+      setStatusMsg(error instanceof Error ? error.message : 'Could not save the manifest.');
     }
   };
 
@@ -202,10 +187,12 @@ export const Popup = () => {
   };
 
   const handleInstall = async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab?.id) {
-      chrome.tabs.sendMessage(tab.id, { action: "trigger_install" });
-    }
+    try {
+      if (!activeTab) return;
+      const result = await chrome.tabs.sendMessage(activeTab.id, { action: 'trigger_install' });
+      if (result?.success) window.close(); // The final, trusted install click happens on the page.
+      else { setIsInstallReady(false); setInstallReason(result?.reason ?? 'Installation is no longer available.'); }
+    } catch { setIsInstallReady(false); setInstallReason('Reload this page, then reopen the extension.'); }
   };
 
   return (
@@ -358,15 +345,17 @@ export const Popup = () => {
         </button>
       </div>
 
-      {(isInstallReady || status === "success") && (
+      {isInstallReady && (
         <button
           onClick={handleInstall}
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded transition-colors flex items-center justify-center gap-2"
-          title="Try to trigger install prompt"
+          title="Show the install confirmation button on the page"
         >
-          <span>📲 Install PWA</span>
+          <span>📲 Continue installation on page</span>
         </button>
       )}
+
+      <p className="text-sm text-slate-600" role="status">{installReason}</p>
 
       {status === "success" && (
         <div className="bg-green-50 text-green-700 p-2 rounded text-sm border border-green-200 text-center">

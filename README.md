@@ -16,7 +16,7 @@ It allows you to inject a dynamic web manifest with a custom `start_url` and `di
 - **Customize PWA Appearance**:
   - Set **App Name** and **Short Name**.
   - Customize **Background Color** and **Theme Color**.
-- **One-Click Install**: Trigger the PWA installation prompt directly from the extension popup.
+- **Guided Installation**: Continue installation on the page when Chromium offers a native prompt, with browser-menu guidance otherwise.
 - **Per-Site Settings**: Automatically saves your configuration for each domain.
 - **Manage Chrome Apps**: easy access to `chrome://apps` to manage or uninstall bad PWAs.
 
@@ -58,11 +58,11 @@ This extension solves this by letting you define the `start_url` (e.g., to the r
    - **Start URL**: The root URL for your PWA (e.g., delete the path to make it root-scoped).
    - **Name**: The name of your app.
    - **Colors**: Customize the look.
-4. Click **Apply & Save**.
-5. Click **📲 Install PWA** (if available) or use the browser's install button.
-6. If the install prompt doesn't appear, refresh the page and try again.
+4. Click **Apply & Save** and grant access to this site so the saved manifest can reapply after reload. The Start URL must use the current origin.
+5. Reload the page once with **Auto Scope Fix** enabled in Options, then reopen the extension. Saved sites capture installation offers from the start of subsequent page loads.
+6. When **Continue installation on page** appears, click it, then click **Install app** on the page to open Chromium's native confirmation. Saving a manifest alone does not make this button available.
 
-> **Tip:** If installation fails or "Open in Chrome" appears instead, go to `chrome://apps/`, delete the existing app, and try again.
+If Chromium does not offer a prompt, use its **Install page as app** menu item if available. Install from a normal browser tab, not an existing standalone app. Chromium may withhold the event because the app is already installed, engagement criteria are unmet, or the manifest/page is ineligible. Repeated refreshes and deleting existing apps are not a general fix. See the [installation troubleshooting guide](docs/navigation.md#installation-troubleshooting).
 
 ## Development
 
@@ -100,7 +100,7 @@ On Windows, use Make and a POSIX shell (for example through MSYS2), or run the c
 
 MIT
 
-## PWA Scope(Fixe)r: internal navigation (1.1.0)
+## PWA Scope(Fixe)r: internal navigation (1.1.1)
 
 This fork adds opt-in, per-app navigation policies while retaining the upstream manifest tools. Configure a scope, approved domains and authentication exclusions in the popup. Ordinary approved links stay in the current app context; simple `window.open` handling is optional and best effort. Chromium 106+ is required.
 

@@ -1,4 +1,5 @@
 import { emptyPolicies, inScope, permissionOrigins, validatePolicies } from './policy';
+import { syncManifestScripts } from '../content/registration';
 import { installNavigation } from './runtime';
 
 const SCRIPT_ID = 'pwa-scope-fixer-navigation';
@@ -54,7 +55,9 @@ export async function navigationMessage(message: any, sender: chrome.runtime.Mes
 }
 export function startNavigation() {
   let pending = Promise.resolve();
-  const sync = () => { pending = pending.then(syncNavigationScripts).catch(() => console.warn('[PWA Scope(Fixe)r] Navigation registration failed; check policy and host access.')); };
+  const sync = () => { pending = pending.then(() => Promise.allSettled([syncNavigationScripts(), syncManifestScripts()])).then(results => {
+    if (results.some(result => result.status === 'rejected')) throw new Error('Registration failed');
+  }).catch(() => console.warn('[PWA Scope(Fixe)r] Script registration failed; check settings and site access.')); };
   const disposeLive = () => {
     void chrome.tabs.query({}).then(tabs => Promise.allSettled(tabs.filter(t => t.id !== undefined).map(t =>
       chrome.scripting.executeScript({ target: { tabId: t.id! }, world: 'MAIN', func: installNavigation, args: [null] })))).then(results => {
@@ -66,6 +69,7 @@ export function startNavigation() {
   chrome.permissions.onAdded.addListener(sync);
   chrome.permissions.onRemoved.addListener(() => { sync(); disposeLive(); });
   chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && (changes.siteSettings || changes.autoScopeFix)) sync();
     if (area === 'local' && changes.navigationPolicies) {
       sync();
       // Remove live handlers immediately when policies change; reload to apply the new policy.
@@ -76,6 +80,11 @@ export function startNavigation() {
     void chrome.storage.session.remove(`navigation-tab-${id}`).catch(() => console.warn('[PWA Scope(Fixe)r] Session cleanup failed.'));
   });
   chrome.runtime.onMessage.addListener((message, sender, respond) => {
+    if (message?.action === 'manifest_sync') {
+      if (sender.id !== chrome.runtime.id || sender.tab || sender.url !== chrome.runtime.getURL('popup/index.html')) return;
+      syncManifestScripts().then(() => respond({ success: true })).catch(() => respond({ success: false }));
+      return true;
+    }
     if (!['navigation_ready', 'navigation_bind', 'navigation_unbind'].includes(message?.action)) return;
     navigationMessage(message, sender).then(respond).catch(() => {
       console.warn('[PWA Scope(Fixe)r] Navigation request failed; native navigation retained.');
