@@ -1,8 +1,8 @@
-# PWA Scope Fixer
+# PWA Scope(Fixe)r
 
 [![Available in the Chrome Web Store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/i73889FkxmYyBgJX2d4A.png)](https://chromewebstore.google.com/detail/paddiikjoldefcflfofcjldejikppcca)
 
-**PWA Scope Fixer** is a Chrome/Chromium extension designed to fix Progressive Web App (PWA) scope issues, specifically addressing the problem where the browser address bar remains visible or the PWA scope is too restricted (e.g., when installing a PWA from a subdirectory).
+**PWA Scope(Fixe)r** is a Chrome/Chromium extension designed to fix Progressive Web App (PWA) scope issues, specifically addressing the problem where the browser address bar remains visible or the PWA scope is too restricted (e.g., when installing a PWA from a subdirectory).
 
 It allows you to inject a dynamic web manifest with a custom `start_url` and `display: standalone` property, forcing the browser to treat the site as a proper PWA with the correct scope.
 
@@ -31,7 +31,7 @@ This extension solves this by letting you define the `start_url` (e.g., to the r
 ## Installation
 
 ### Chrome Web Store
-[**Download PWA Scope Fixer**](https://chromewebstore.google.com/detail/paddiikjoldefcflfofcjldejikppcca)
+[**Download the upstream extension**](https://chromewebstore.google.com/detail/paddiikjoldefcflfofcjldejikppcca)
 
 ### Manual Installation (from source)
 
@@ -53,7 +53,7 @@ This extension solves this by letting you define the `start_url` (e.g., to the r
 ## Usage
 
 1. Navigate to the website you want to install as a PWA.
-2. Click the **PWA Scope Fixer** extension icon.
+2. Click the extension icon.
 3. Configure your settings:
    - **Start URL**: The root URL for your PWA (e.g., delete the path to make it root-scoped).
    - **Name**: The name of your app.
@@ -82,8 +82,8 @@ This project uses [Bun](https://bun.sh/) and [React](https://react.dev/).
 
 MIT
 
-## PWA Scoper fork: internal navigation (1.1.0)
+## PWA Scope(Fixe)r: internal navigation (1.1.0)
 
-This fork adds opt-in, per-app navigation policies while retaining PWA Scope Fixer's upstream manifest tools and naming. Configure a scope, approved domains and authentication exclusions in the popup. Ordinary approved links stay in the current app context; simple `window.open` handling is optional and best effort. Chromium 106+ is required.
+This fork adds opt-in, per-app navigation policies while retaining the upstream manifest tools. Configure a scope, approved domains and authentication exclusions in the popup. Ordinary approved links stay in the current app context; simple `window.open` handling is optional and best effort. Chromium 106+ is required.
 
 Read the [navigation guide](docs/navigation.md) for Omarchy setup, host permissions, activation, authentication safeguards, API constraints, tests and the cross-platform acceptance checklist. The Web Store links above refer to upstream, not this fork. Native browser acceptance is pending; universal popup interception is not supported.
