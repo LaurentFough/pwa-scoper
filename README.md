@@ -1,4 +1,4 @@
-# PWA Scope Fixer
+# PWA Scope(Fixe)r
 
 [![Available in the Chrome Web Store](https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/i73889FkxmYyBgJX2d4A.png)](https://chromewebstore.google.com/detail/paddiikjoldefcflfofcjldejikppcca)
 
