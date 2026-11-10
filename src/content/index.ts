@@ -35,7 +35,7 @@ function injectManifest(settings: {
   backgroundColor?: string;
   themeColor?: string;
 }) {
-  console.log("[PWA Scope Fixer] Injecting manifest with settings:", settings);
+  console.log("[PWA Scope Fixer] Injecting manifest");
 
   // 1. Create Policy for TrustedTypes (if required by the site)
   let policy: any = { createHTML: (s: string) => s };

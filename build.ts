@@ -69,6 +69,12 @@ async function build() {
     });
     if (!contentBuild.success) throw new Error("Content Build failed: " + contentBuild.logs);
 
+    const navigationBuild = await Bun.build({
+      entrypoints: ["src/navigation/bootstrap.ts"], outdir, naming: "navigation.js",
+      minify: !isWatch, target: "browser",
+    });
+    if (!navigationBuild.success) throw new Error("Navigation build failed: " + navigationBuild.logs);
+
     // 5. Copy Manifest and Assets
     console.log("📂 Copying Manifest and Assets...");
     await Bun.write(path.join(outdir, "manifest.json"), Bun.file("src/manifest.json"));

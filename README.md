@@ -81,3 +81,9 @@ This project uses [Bun](https://bun.sh/) and [React](https://react.dev/).
 ## License
 
 MIT
+
+## PWA Scoper fork: internal navigation (1.1.0)
+
+This fork adds opt-in, per-app navigation policies while retaining PWA Scope Fixer's upstream manifest tools and naming. Configure a scope, approved domains and authentication exclusions in the popup. Ordinary approved links stay in the current app context; simple `window.open` handling is optional and best effort. Chromium 106+ is required.
+
+Read the [navigation guide](docs/navigation.md) for Omarchy setup, host permissions, activation, authentication safeguards, API constraints, tests and the cross-platform acceptance checklist. The Web Store links above refer to upstream, not this fork. Native browser acceptance is pending; universal popup interception is not supported.

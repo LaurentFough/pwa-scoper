@@ -18,9 +18,10 @@ const defaultStorage: StorageSchema = {
 
 export const StorageManager = {
   get: async <K extends keyof StorageSchema>(keys: K | K[]): Promise<Pick<StorageSchema, K>> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const keysToFetch = Array.isArray(keys) ? keys : [keys];
       chrome.storage.local.get(keysToFetch, (result) => {
+        if (chrome.runtime.lastError) { reject(new Error(chrome.runtime.lastError.message)); return; }
         const data = { ...result } as Partial<StorageSchema>;
         // Fill defaults if missing
         keysToFetch.forEach((key) => {
@@ -47,8 +48,9 @@ export const StorageManager = {
   },
 
   getAll: async (): Promise<StorageSchema> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       chrome.storage.local.get(null, (result) => {
+        if (chrome.runtime.lastError) { reject(new Error(chrome.runtime.lastError.message)); return; }
         const data = { ...defaultStorage, ...result } as StorageSchema;
         resolve(data);
       });

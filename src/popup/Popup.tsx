@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+import { NavigationSettings } from "./NavigationSettings";
+
 import { StorageManager } from "../utils/storage";
 
 export const Popup = () => {
@@ -210,7 +212,7 @@ export const Popup = () => {
     <div className="p-4 flex flex-col gap-4 w-[450px]">
       <div className="flex items-center gap-2 border-b pb-2 mb-1">
         <h1 className="text-lg font-bold text-slate-800 flex-1">PWA Scope Fixer</h1>
-        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">v1.2</span>
+        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">v{chrome.runtime.getManifest().version}</span>
         <button
           onClick={() => chrome.runtime.openOptionsPage()}
           className="p-1.5 hover:bg-slate-200 rounded-full text-slate-500 hover:text-slate-700 transition-colors"
@@ -377,6 +379,8 @@ export const Popup = () => {
           ❌ {statusMsg}
         </div>
       )}
+
+      <NavigationSettings />
 
       <div className="mt-2 pt-3 border-t text-[10px] text-slate-400 text-center flex flex-col gap-1">
         <div>

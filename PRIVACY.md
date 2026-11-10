@@ -31,3 +31,7 @@ We may update our Privacy Policy from time to time. We will notify you of any ch
 If you have any questions about this Privacy Policy, please contact us at:
 
 - **GitHub Issues:** [https://github.com/kittizz/pwa-scope-fixer/issues](https://github.com/kittizz/pwa-scope-fixer/issues)
+
+## PWA Scoper fork navigation additions — November 10, 2026
+
+App scopes, exact approved domains and authentication exclusions are stored in `chrome.storage.local`. Temporary app-tab bindings use `chrome.storage.session` and expire on browser restart. Navigation requires optional HTTP(S) host access, requested only for the enabled app's configured hosts. It runs locally; no browsing history, navigation telemetry or authentication data is collected or transmitted. Generic navigation warnings omit destination URLs and query values. The extension does not request the `tabs` permission. Host grants can be revoked through Chromium's extension site-access controls. Reload app windows after revocation to clear any unreachable injected runtime.
