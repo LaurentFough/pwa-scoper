@@ -1,3 +1,5 @@
+import { startNavigation } from "../navigation/background";
+startNavigation();
 console.log("Background service worker loaded.");
 
 chrome.runtime.onInstalled.addListener(() => {
